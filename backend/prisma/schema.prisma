@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Proveedor {
+  id        String    @id @default(uuid()) @db.Uuid
+  nombre    String    @db.VarChar(200)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  facturas  Factura[]
+
+  @@map("proveedores")
+}
+
+model Factura {
+  id                String     @id @default(uuid()) @db.Uuid
+  proveedor_id      String     @db.Uuid
+  numero_factura    String     @db.VarChar(100)
+  fecha_emision     DateTime   @db.Date
+  fecha_vencimiento DateTime?  @db.Date
+  valor_total       Decimal    @db.Decimal(18, 2)
+  moneda            String     @db.Char(3)
+  numero_contrato   String?    @db.VarChar(100)
+  created_at        DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime   @updatedAt @db.Timestamptz(6)
+  documento         Documento?
+
+  proveedor Proveedor @relation(fields: [proveedor_id], references: [id])
+
+  @@unique([proveedor_id, numero_factura])
+  @@index([fecha_emision])
+  @@map("facturas")
+}
+
+model Documento {
+  id             String   @id @default(uuid()) @db.Uuid
+  factura_id     String   @unique @db.Uuid
+  nombre_archivo String   @db.VarChar(255)
+  tipo_archivo   String   @db.VarChar(100)
+  size_bytes     BigInt   @db.BigInt
+  fecha_carga    DateTime @default(now()) @db.Timestamptz(6)
+  respuesta_llm  Json     @db.JsonB
+  ruta_archivo   String?  @db.VarChar(500)
+
+  factura Factura @relation(fields: [factura_id], references: [id], onDelete: Cascade)
+
+  @@map("documentos")
+}
