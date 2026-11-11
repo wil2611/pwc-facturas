@@ -1,4 +1,4 @@
-import { Controller, Get, Query, DefaultValuePipe, ParseIntPipe, BadRequestException, Param, ParseUUIDPipe, Put, Body } from '@nestjs/common';
+import { Controller, Get, Query, DefaultValuePipe, ParseIntPipe, BadRequestException, Param, ParseUUIDPipe, Put, Body, Delete } from '@nestjs/common';
 import { FacturasService } from './facturas.service';
 import { UpdateFacturaDto } from './dto/update-factura.dto';
 @Controller('facturas')
@@ -45,5 +45,10 @@ export class FacturasController {
     @Put(':id')
     update(@Param('id', new ParseUUIDPipe()) id: string,@Body() updateData: UpdateFacturaDto) {
         return this.facturasService.update(id, updateData);
+    }
+
+    @Delete(':id')
+    remove(@Param('id', new ParseUUIDPipe()) id: string) {
+        return this.facturasService.delete(id);
     }
 }

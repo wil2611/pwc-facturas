@@ -65,4 +65,20 @@ export class FacturasService {
       throw error;
     }
   }
+
+  async delete(id: string) {
+    try {
+      const deletedFactura = await this.prisma.factura.delete({
+        where: { id },
+      });
+      return deletedFactura;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException('Factura not found');
+        }
+      }
+      throw error;
+    }
+  }
 }
