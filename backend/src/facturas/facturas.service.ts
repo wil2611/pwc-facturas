@@ -6,6 +6,9 @@ import { UpdateFacturaDto } from './dto/update-factura.dto';
 export class FacturasService {
   constructor(private prisma: PrismaService) { }
 
+  create() {
+    return this.prisma.factura.create
+  }
   
   findAll(page: number, pageSize: number, proveedor?: string, fechaDesde?: Date | null, fechaHasta?: Date | null) {
     const where: Prisma.FacturaWhereInput = {};
