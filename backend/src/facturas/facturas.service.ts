@@ -18,17 +18,19 @@ export class FacturasService {
     const apiKey = this.configService.getOrThrow<string>('GEMINI_API_KEY');
     const apiUrl = this.configService.getOrThrow<string>('GEMINI_API_URL');
 
-    const response = await fetch(`${apiUrl}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey,
-      },
-      body: JSON.stringify({
-        contents: [{
-          "parts": [
-            {
-              "text": `Extrae la información de esta factura y devuelve
+    let response;
+    try {
+      response = await fetch(`${apiUrl}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
+        },
+        body: JSON.stringify({
+          contents: [{
+            "parts": [
+              {
+                "text": `Extrae la información de esta factura y devuelve
                         unicamente un objeto JSON con los siguientes campos:
 
                         proveedor,
@@ -44,32 +46,45 @@ export class FacturasService {
                         La moneda debe ser tres letras, ejemplo COP.
                         Si un dato no aparece, devuelve null.
                         No inventes información.`
-            }
-          ]
-        }, {
-          "parts": [
-            {
-              "inlineData": {
-                "mimeType": mimeType,
-                "data": base64,
               }
-            }
-          ]
-        }
-        ],
-        generationConfig: {
-          responseMimeType: 'application/json',
-        }
-      }),
-    });
+            ]
+          }, {
+            "parts": [
+              {
+                "inlineData": {
+                  "mimeType": mimeType,
+                  "data": base64,
+                }
+              }
+            ]
+          }
+          ],
+          generationConfig: {
+            responseMimeType: 'application/json',
+          }
+        }),
+      });
+    } catch (error) {
+      console.error(error);
+      throw new BadGatewayException("Error connecting to llm");
+    }
     if (!response.ok) {
       const error = await response.text();
       console.error(error);
       throw new BadGatewayException("Error processing invoice with AI");
     }
+
     const resultado = await response.json();
-    const textoGenerado = resultado.candidates[0].content.parts[0].text;
-    const datosFactura = JSON.parse(textoGenerado);
+    const textoGenerado = resultado.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!textoGenerado) {
+      throw new BadGatewayException("No response from llm");
+    }
+    let datosFactura;
+    try {
+      datosFactura = JSON.parse(textoGenerado);
+    } catch (error) {
+      throw new BadGatewayException("Invalid JSON from llm");
+    }
     const factura = plainToInstance(CreateFacturaDto, datosFactura);
     const errors = await validate(factura);
 
