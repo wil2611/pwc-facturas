@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '../generated/prisma/client';
+import { UpdateFacturaDto } from './dto/update-factura.dto';
 @Injectable()
 export class FacturasService {
   constructor(private prisma: PrismaService) { }
@@ -37,11 +38,31 @@ export class FacturasService {
         documento: true,
       },
     });
-    
+
     if (!factura) {
       throw new NotFoundException('Factura not found');
     }
-    
+
     return factura;
+  }
+
+  async update(id: string, updateData: UpdateFacturaDto) {
+    try {
+      const updatedFactura = await this.prisma.factura.update({
+        where: { id },
+        data: updateData,
+      });
+      return updatedFactura;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException('Factura not found');
+        }
+        if (error.code === 'P2002') {
+          throw new ConflictException('Factura already exists');
+        }
+      }
+      throw error;
+    }
   }
 }

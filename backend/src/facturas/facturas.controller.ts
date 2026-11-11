@@ -1,6 +1,6 @@
-import { Controller, Get, Query, DefaultValuePipe, ParseIntPipe, BadRequestException, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Query, DefaultValuePipe, ParseIntPipe, BadRequestException, Param, ParseUUIDPipe, Put, Body } from '@nestjs/common';
 import { FacturasService } from './facturas.service';
-
+import { UpdateFacturaDto } from './dto/update-factura.dto';
 @Controller('facturas')
 export class FacturasController {
     constructor(private facturasService: FacturasService) { }
@@ -40,5 +40,10 @@ export class FacturasController {
         }
 
         return this.facturasService.findAll(page, pageSize, proveedor, fechaDesdeDate, fechaHastaDate);
+    }
+
+    @Put(':id')
+    update(@Param('id', new ParseUUIDPipe()) id: string,@Body() updateData: UpdateFacturaDto) {
+        return this.facturasService.update(id, updateData);
     }
 }
