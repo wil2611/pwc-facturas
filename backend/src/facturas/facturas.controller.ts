@@ -1,8 +1,14 @@
-import { Controller, Get, Query, DefaultValuePipe, ParseIntPipe, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Query, DefaultValuePipe, ParseIntPipe, BadRequestException, Param, ParseUUIDPipe } from '@nestjs/common';
 import { FacturasService } from './facturas.service';
+
 @Controller('facturas')
 export class FacturasController {
     constructor(private facturasService: FacturasService) { }
+
+    @Get(':id')
+    findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+        return this.facturasService.findOne(id);
+    }
 
     @Get()
     findAll(@Query('page', new DefaultValuePipe(1), new ParseIntPipe()) page: number,

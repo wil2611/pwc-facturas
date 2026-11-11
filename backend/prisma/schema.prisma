@@ -46,7 +46,7 @@ model Documento {
   factura_id     String   @unique @db.Uuid
   nombre_archivo String   @db.VarChar(255)
   tipo_archivo   String   @db.VarChar(100)
-  size_bytes     BigInt   @db.BigInt
+  size_bytes     Int      @db.Integer
   fecha_carga    DateTime @default(now()) @db.Timestamptz(6)
   respuesta_llm  Json     @db.JsonB
   ruta_archivo   String?  @db.VarChar(500)

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '../generated/prisma/client';
 @Injectable()
@@ -27,5 +27,21 @@ export class FacturasService {
       ],
       where: where,
     });
+  }
+
+  async findOne(id: string) {
+    const factura = await this.prisma.factura.findUnique({
+      where: { id },
+      include: {
+        proveedor: true,
+        documento: true,
+      },
+    });
+    
+    if (!factura) {
+      throw new NotFoundException('Factura not found');
+    }
+    
+    return factura;
   }
 }
