@@ -10,6 +10,11 @@ export class FacturasController {
         return this.facturasService.findOne(id);
     }
 
+    @Get('reportes/resumen')
+    getSummary() {
+        return this.facturasService.Summary();
+    }
+
     @Get()
     findAll(@Query('page', new DefaultValuePipe(1), new ParseIntPipe()) page: number,
         @Query('pageSize', new DefaultValuePipe(10), new ParseIntPipe()) pageSize: number,

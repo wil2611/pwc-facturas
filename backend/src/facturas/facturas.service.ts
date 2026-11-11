@@ -5,6 +5,8 @@ import { UpdateFacturaDto } from './dto/update-factura.dto';
 @Injectable()
 export class FacturasService {
   constructor(private prisma: PrismaService) { }
+
+  
   findAll(page: number, pageSize: number, proveedor?: string, fechaDesde?: Date | null, fechaHasta?: Date | null) {
     const where: Prisma.FacturaWhereInput = {};
     if (proveedor) {
@@ -44,6 +46,24 @@ export class FacturasService {
     }
 
     return factura;
+  }
+
+  async Summary() {
+    return this.prisma.$queryRaw`
+      SELECT 
+      proveedores.nombre AS proveedor,
+      TO_CHAR(fecha_emision, 'YYYY-MM') AS mes_factura,
+      moneda,
+      COUNT(*):: int AS total_facturas, 
+      SUM(valor_total) AS total_valor
+      FROM facturas 
+      Join proveedores ON facturas.proveedor_id = proveedores.id
+      GrOUP BY 
+      proveedores.id,
+      proveedores.nombre, 
+      TO_CHAR(fecha_emision, 'YYYY-MM'), 
+      facturas.moneda
+      Order By mes_factura DESC, total_valor DESC`;
   }
 
   async update(id: string, updateData: UpdateFacturaDto) {
