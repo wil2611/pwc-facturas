@@ -21,7 +21,7 @@ export class FacturasController {
         if (!archivo) {
             throw new BadRequestException('File is required');
         }
-        return { nombreArchivo: archivo.originalname, tipo: archivo.mimetype, tamaño: archivo.size };
+        return this.facturasService.create(archivo);
     }
 
     @Get(':id')
