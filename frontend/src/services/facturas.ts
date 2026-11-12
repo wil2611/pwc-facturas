@@ -47,4 +47,11 @@ const uploadFactura = async (archivo: File): Promise<Factura> => {
     return response.json();
 };
 
-export { getFacturas, getFacturaById, updateFactura, uploadFactura };
+const deleteFactura = async (id: string): Promise<void> => {
+    const response = await fetchSeguro(`${import.meta.env.VITE_API_URL}/api/facturas/${id}`, {
+        method: 'DELETE',
+    });
+    verificarRespuesta(response, "No se pudo eliminar la factura");
+}
+
+export { getFacturas, getFacturaById, updateFactura, uploadFactura, deleteFactura };

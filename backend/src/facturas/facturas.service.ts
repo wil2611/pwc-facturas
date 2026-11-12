@@ -225,10 +225,9 @@ export class FacturasService {
 
   async delete(id: string) {
     try {
-      const deletedFactura = await this.prisma.factura.delete({
+      await this.prisma.factura.delete({
         where: { id },
       });
-      return deletedFactura;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {

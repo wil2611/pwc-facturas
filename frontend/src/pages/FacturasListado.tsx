@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
 import '../styles/FacturasListado.css'
 import type { Factura, FacturasResponse } from '../types/facturas'
-import { getFacturas } from '../services/facturas'
+import { getFacturas, deleteFactura } from '../services/facturas'
 import { Link } from 'react-router-dom'
+
+const formatearFecha = (fecha: string) => {
+  const [anio, mes, dia] = fecha.slice(0, 10).split('-')
+  return `${dia}/${mes}/${anio}`
+}
 
 function FacturasListado() {
   const [loading, setLoading] = useState(true)
@@ -21,6 +26,29 @@ function FacturasListado() {
     fechaHasta: '',
   })
   const [errorFiltros, setErrorFiltros] = useState<string | null>(null)
+  const handleDeleteFactura = async (id: string) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar esta factura?')) {
+      return;
+    }
+    try {
+      setLoading(true);
+      setError(null);
+      await deleteFactura(id)
+      if (facturas.length === 1 && page > 1) {
+        setPage(page - 1)
+      } else {
+        await fetchFacturas()
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Error al eliminar la factura');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const fetchFacturas = async () => {
     try {
@@ -103,6 +131,11 @@ function FacturasListado() {
         }}>Limpiar filtros</button>
         {errorFiltros && <p className="filter-error" role="alert">{errorFiltros}</p>}
       </div>
+      <div>
+        <Link to="/carga" className="new-factura-button">
+          Nueva factura
+        </Link>
+      </div>
 
       {loading ? (
         <p>Cargando...</p>
@@ -116,12 +149,12 @@ function FacturasListado() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>Numero Factura</th>
+                  <th>Número de factura</th>
                   <th>Proveedor</th>
-                  <th>Fecha Emision</th>
-                  <th>Fecha Vencimiento</th>
-                  <th>Numero de contrato</th>
-                  <th className="amount">Valor Total</th>
+                  <th>Fecha de emisión</th>
+                  <th>Fecha de vencimiento</th>
+                  <th>Número de contrato</th>
+                  <th className="amount">Valor total</th>
                   <th>Moneda</th>
                   <th>Acciones</th>
                 </tr>
@@ -131,12 +164,17 @@ function FacturasListado() {
                   <tr key={factura.id}>
                     <td>{factura.numero_factura}</td>
                     <td>{factura.proveedor.nombre}</td>
-                    <td>{factura.fecha_emision.slice(0, 10)}</td>
-                    <td>{factura.fecha_vencimiento?.slice(0, 10) ?? 'No especificada'}</td>
+                    <td>{formatearFecha(factura.fecha_emision)}</td>
+                    <td>{factura.fecha_vencimiento ? formatearFecha(factura.fecha_vencimiento) : 'No especificada'}</td>
                     <td>{factura.numero_contrato ?? 'No especificado'}</td>
                     <td className="amount">{new Intl.NumberFormat('es-CO').format(Number(factura.valor_total))}</td>
                     <td>{factura.moneda}</td>
-                    <td><Link to={`/facturas/${factura.id}`}>Ver detalle</Link></td>
+                    <td>
+                      <div className="table-actions">
+                        <Link to={`/facturas/${factura.id}`}>Ver o editar</Link>
+                        <button type="button" className="delete-factura-button" onClick={() => handleDeleteFactura(factura.id)}>Eliminar</button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>

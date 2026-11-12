@@ -59,6 +59,40 @@
   background-color: #f9fafb;
 }
 
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.table-actions a {
+  color: #b85500;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.table-actions a:hover {
+  text-decoration: underline;
+}
+
+.delete-factura-button {
+  padding: 6px 10px;
+  background-color: white;
+  color: #b42318;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.delete-factura-button:hover {
+  background-color: #fef2f2;
+  border-color: #b42318;
+}
+
 .filters{
   display: flex;
   flex-wrap: wrap;
@@ -103,6 +137,22 @@
   font-size: 14px;
   margin: 8px 0;
   flex-basis: 100%;
+}
+
+.new-factura-button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin-bottom: 16px;
+  background-color: #dc6900;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.new-factura-button:hover {
+  background-color: #b85500;
 }
 
 .provider-filter input{

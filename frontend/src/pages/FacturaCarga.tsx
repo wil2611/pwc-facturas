@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { uploadFactura } from '../services/facturas'
 import '../styles/FacturaCarga.css'
 import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 function FacturaCarga() {
     const [archivo, setArchivo] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -96,7 +97,9 @@ function FacturaCarga() {
                     <p>Subiendo y procesando factura...</p>
                 </div>
             )}
+            <Link to="/facturas" className="back-link">Volver al listado</Link>
         </div>
+        
     );
 }
 export default FacturaCarga;
