@@ -38,8 +38,12 @@ function FacturaDetalle() {
             });
             setFactura(facturaActualizada);
             setSuccess('Factura actualizada correctamente');
-        } catch {
-            setError('Error al actualizar la factura');
+        } catch (error) {
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError('Error al actualizar la factura');
+            }
         }
     };
 
@@ -64,8 +68,12 @@ function FacturaDetalle() {
                     moneda: factura.moneda,
                     numero_contrato: factura.numero_contrato ?? ''
                 });
-            } catch {
-                setError('No se pudo cargar la información de la factura');
+            } catch (error) {
+                if (error instanceof Error) {
+                    setError(error.message);
+                } else {
+                    setError('Error al cargar la información de la factura');
+                }
             }
             finally {
                 setLoading(false);

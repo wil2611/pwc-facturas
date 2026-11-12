@@ -51,8 +51,12 @@ function FacturaCarga() {
             setError(null)
             const facturaCreada = await uploadFactura(archivo)
             navigate(`/facturas/${facturaCreada.id}`)
-        } catch {
-            setError('Error al cargar la factura.');
+        } catch (error) {
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError('Error al cargar la factura.');
+            }
         } finally {
             setLoading(false);
         }

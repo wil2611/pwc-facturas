@@ -30,8 +30,11 @@ function FacturasListado() {
       setFacturas(data.facturas)
       setTotalCount(data.totalCount)
     } catch (error) {
-      console.error(error)
-      setError(error instanceof Error ? error.message : 'Error cargando facturas')
+      if (error instanceof Error) {
+        setError(error.message)
+      } else {
+        setError('Error al obtener las facturas')
+      }
     } finally {
       setLoading(false)
     }
