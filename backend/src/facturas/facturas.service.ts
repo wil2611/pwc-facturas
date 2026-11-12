@@ -202,6 +202,9 @@ export class FacturasService {
       const updatedFactura = await this.prisma.factura.update({
         where: { id },
         data: updateData,
+        include: {
+          proveedor: true,
+        },
       });
       return updatedFactura;
     } catch (error) {

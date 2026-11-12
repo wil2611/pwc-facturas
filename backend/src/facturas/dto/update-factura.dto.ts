@@ -1,6 +1,11 @@
-import { IsNotEmpty, IsOptional, IsString, IsDateString, IsNumber, IsPositive, Length, IsDate } from "class-validator";
-import{Type} from "class-transformer";
+import { IsNotEmpty, IsOptional, IsString, IsDateString, IsNumber, IsPositive, Length, IsDate, IsUUID } from "class-validator";
+import { Type } from "class-transformer";
 export class UpdateFacturaDto {
+
+    @IsOptional()
+    @IsUUID()
+    proveedor_id?: string
+    
     @IsOptional()
     @IsString()
     @IsNotEmpty()
@@ -17,7 +22,7 @@ export class UpdateFacturaDto {
     fecha_vencimiento?: Date | null;
 
     @IsOptional()
-    @IsNumber({maxDecimalPlaces: 2})
+    @IsNumber({ maxDecimalPlaces: 2 })
     @IsPositive()
     valor_total?: number;
 
