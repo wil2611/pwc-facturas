@@ -1,4 +1,4 @@
-import type {FacturasResponse} from "../types/facturas";
+import type {Factura, FacturasResponse} from "../types/facturas";
 
 const getFacturas = async (page: number, pageSize: number, proveedor?: string, fechaDesde?: string, fechaHasta?: string): Promise<FacturasResponse> => {
     const params = new URLSearchParams();
@@ -16,10 +16,18 @@ const getFacturas = async (page: number, pageSize: number, proveedor?: string, f
     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/facturas?${params.toString()}`);
     
     if (!response.ok) {
-        throw new Error("Failed to fetch facturas");
+        throw new Error("No se pudo obtener las facturas");
     }
     
     return response.json();
 };
 
-export {getFacturas};
+const getFacturaById = async (id: string): Promise<Factura> => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/facturas/${id}`);
+    if (!response.ok) {
+        throw new Error("No se pudo obtener la factura");
+    }
+    return response.json();
+};
+
+export {getFacturas, getFacturaById};

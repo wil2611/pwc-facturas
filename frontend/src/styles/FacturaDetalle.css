@@ -1,0 +1,67 @@
+.factura-detalle {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+.factura-detalle h1 {
+  font-size: 30px;
+  font-weight: 600;
+  margin: 0 0 24px;
+}
+
+.factura-detalle .error {
+  color: #b42318;
+  font-size: 14px;
+  margin: 16px 0;
+}
+
+.detalle-datos {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-weight: 400;
+}
+
+.detalle-datos strong {
+  font-weight: 600;
+}
+
+.detalle-datos p {
+  font-size: 15px;
+  padding: 12px 0;
+  margin: 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detalle-datos p:last-child {
+  border-bottom: none;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 16px;
+  text-decoration: none;
+  color: #b85500;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .factura-detalle {
+    padding: 20px 16px;
+  }
+
+  .detalle-datos {
+    padding: 8px 16px;
+  }
+
+  .factura-detalle h1 {
+    font-size: 26px;
+  }
+}
