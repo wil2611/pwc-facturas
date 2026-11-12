@@ -1,4 +1,4 @@
-import type { Factura, FacturasResponse,ActualizarFactura } from "../types/facturas";
+import type { Factura, FacturasResponse, ActualizarFactura } from "../types/facturas";
 
 const getFacturas = async (page: number, pageSize: number, proveedor?: string, fechaDesde?: string, fechaHasta?: string): Promise<FacturasResponse> => {
     const params = new URLSearchParams();
@@ -44,4 +44,17 @@ const updateFactura = async (id: string, facturaData: ActualizarFactura): Promis
     return response.json();
 };
 
-export { getFacturas, getFacturaById, updateFactura };
+const uploadFactura = async (archivo: File): Promise<Factura> => {
+    const formData = new FormData();
+    formData.append('archivo', archivo);
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/facturas`, {
+        method: 'POST',
+        body: formData,
+    });
+    if (!response.ok) {
+        throw new Error("No se pudo subir la factura");
+    }
+    return response.json();
+};
+
+export { getFacturas, getFacturaById, updateFactura, uploadFactura };

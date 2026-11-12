@@ -111,6 +111,9 @@ export class FacturasService {
             valor_total: factura.valor_total,
             moneda: factura.moneda,
             numero_contrato: factura.numero_contrato
+          },
+          include: {
+            proveedor: true,
           }
         });
         await transaction.documento.create({

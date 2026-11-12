@@ -1,0 +1,77 @@
+.factura-carga {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+.factura-carga h1 {
+  font-size: 30px;
+  font-weight: 600;
+  margin: 0 0 24px;
+}
+
+.factura-carga label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.factura-carga img {
+  display: block;
+  max-width: 100%;
+  max-height: 450px;
+  object-fit: contain;
+  margin-top: 16px;
+}
+
+.factura-carga iframe {
+  display: block;
+  width: 100%;
+  height: 450px;
+  box-sizing: border-box;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  margin: 16px 0;
+}
+
+.factura-carga button {
+  display: block;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #dc6900;
+  color: white;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.factura-carga button:hover:not(:disabled) {
+  background-color: #b85500;
+}
+
+.factura-carga button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.factura-carga input[type="file"] {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: white;
+  font: inherit;
+  cursor: pointer;
+}
+
+.archivo-ayuda {
+  margin: 8px 0 16px;
+  color: #6b7280;
+  font-size: 13px;
+}
