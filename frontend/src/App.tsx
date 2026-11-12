@@ -1,121 +1,130 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
+import type { Factura } from './types/facturas'
+import { getFacturas } from './services/facturas'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [facturas, setFacturas] = useState<Factura[]>([])
+  const [page, setPage] = useState(1)
+  const pageSize = 10
+  const [proveedor, setProveedor] = useState<string>('')
+  const [fechaDesde, setFechaDesde] = useState<string>('')
+  const [fechaHasta, setFechaHasta] = useState<string>('')
+  const [filtrosAplicados, setFiltrosAplicados] = useState({
+    proveedor: '',
+    fechaDesde: '',
+    fechaHasta: '',
+  })
+
+  const fetchFacturas = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const data: Factura[] = await getFacturas(page, pageSize, filtrosAplicados.proveedor, filtrosAplicados.fechaDesde, filtrosAplicados.fechaHasta)
+      setFacturas(data)
+    } catch (error) {
+      console.error(error)
+      setError(error instanceof Error ? error.message : 'Error cargando facturas')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
+
+  useEffect(() => {
+    fetchFacturas()
+  }, [page, filtrosAplicados])
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="App">
+      <h1>Facturas</h1>
+      <div className="filters">
+        <div className="provider-filter">
+          <label htmlFor="proveedor">Proveedor:</label>
+          <input
+            type="text"
+            id="proveedor"
+            value={proveedor}
+            onChange={(e) =>
+              setProveedor(e.target.value)
+            }
+          />
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
+        <div className="date-filter">
+          <label htmlFor="fechaDesde">Fecha Desde:</label>
+          <input
+            type="date"
+            id="fechaDesde"
+            value={fechaDesde}
+            onChange={(e) =>
+              setFechaDesde(e.target.value)
+            }
+          />
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
+        <div className="date-filter">
+          <label htmlFor="fechaHasta">Fecha Hasta:</label>
+          <input
+            type="date"
+            id="fechaHasta"
+            value={fechaHasta}
+            onChange={(e) =>
+              setFechaHasta(e.target.value)
+            }
+          />
+        </div>
+        <button type="button" onClick={() => {
+          if (fechaDesde && fechaHasta && fechaDesde > fechaHasta) {
+            setError('La fecha desde no puede ser mayor que la fecha hasta')
+            return
+          };
+          setPage(1);  
+          setFiltrosAplicados({ proveedor, fechaDesde, fechaHasta });
+        }}>Buscar</button>
+      </div>
+
+      {loading ? (
+        <p>Cargando...</p>
+      ) : error ? (
+        <p>Error: {error}</p>
+      ) : facturas.length === 0 ? (
+        <p>No hay facturas</p>
+      ) : (
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Numero Factura</th>
+              <th>Proveedor</th>
+              <th>Fecha Emision</th>
+              <th>Valor Total</th>
+              <th>Moneda</th>
+            </tr>
+          </thead>
+          <tbody>
+            {facturas.map((factura) => (
+              <tr key={factura.id}>
+                <td>{factura.numero_factura}</td>
+                <td>{factura.proveedor.nombre}</td>
+                <td>{factura.fecha_emision.slice(0, 10)}</td>
+                <td>{factura.valor_total}</td>
+                <td>{factura.moneda}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <div className="pagination">
+        <button onClick={() => setPage((prev) => Math.max(prev - 1, 1))} disabled={loading || page === 1}>
+          Anterior
         </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        <span>Página {page}</span>
+        <button onClick={() => setPage((prev) => prev + 1)} disabled={loading || facturas.length < pageSize}>
+          Siguiente
+        </button>
+      </div>
+    </div>
   )
 }
 

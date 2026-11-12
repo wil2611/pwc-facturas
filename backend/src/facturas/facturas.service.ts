@@ -155,6 +155,9 @@ export class FacturasService {
         { id: 'asc' },
       ],
       where: where,
+      include: {
+        proveedor: true,
+      },
     });
   }
 
