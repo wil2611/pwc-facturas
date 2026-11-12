@@ -4,16 +4,31 @@
   padding: 20px;
 }
 
-.App h1{
+.App h1 {
   font-size: 30px;
   font-weight: 600;
-  text-align: center;
-  margin-bottom: 24px;
+  margin: 0 0 8px;
+}
+
+.description {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0 0 24px;
+}
+
+.table-container{
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
 }
 
 .table{
   width: 100%;
   border-collapse: collapse;
+}
+
+.table-scroll{
+  overflow-x: auto;
 }
 
 .table th {
@@ -30,6 +45,11 @@
   text-align: left;
 }
 
+.table th.amount,
+.table td.amount {
+  text-align: right;
+}
+
 .table tr{
   font-size: 15px;
   font-weight: 400;
@@ -37,4 +57,105 @@
 
 .table tbody tr:hover{
   background-color: #f9fafb;
+}
+
+.filters{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.filters input{
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font:inherit;
+  background-color: white;
+}
+
+.filters button{
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #dc6900;
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
+
+.filters button:hover{
+  background-color: #b85500;
+}
+.filters .clear-filters {
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.filters .clear-filters:hover {
+  background-color: #f9fafb;
+}
+
+
+.filter-error {
+  color: red;
+  font-size: 14px;
+  margin: 8px 0;
+  flex-basis: 100%;
+}
+
+.provider-filter input{
+  width: 260px;
+  max-width: 100%;
+}
+.provider-filter,.date-filter{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pagination{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.pagination button{
+  padding: 8px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: white;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pagination button:hover:not(:disabled){
+  background-color: #f9fafb;
+}
+
+.pagination button:disabled{
+  color: #6b7280;
+  background-color: #f9fafb;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .filters{
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .provider-filter input,
+  .date-filter input{
+    width: 100%;
+  }
+  .filters button{
+    width: 100%;
+  }
+  .table{
+    min-width: 750px;
+  }
 }

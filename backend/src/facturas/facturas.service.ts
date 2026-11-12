@@ -133,7 +133,7 @@ export class FacturasService {
     }
   }
 
-  findAll(page: number, pageSize: number, proveedor?: string, fechaDesde?: Date | null, fechaHasta?: Date | null) {
+  async findAll(page: number, pageSize: number, proveedor?: string, fechaDesde?: Date | null, fechaHasta?: Date | null) {
     const where: Prisma.FacturaWhereInput = {};
     if (proveedor) {
       where.proveedor = { nombre: { contains: proveedor, mode: 'insensitive' } };
@@ -147,7 +147,8 @@ export class FacturasService {
         where.fecha_emision.lte = fechaHasta;
       }
     }
-    return this.prisma.factura.findMany({
+    const totalCount = await this.prisma.factura.count({ where });
+    const facturas = await this.prisma.factura.findMany({
       skip: (page - 1) * pageSize,
       take: pageSize,
       orderBy: [
@@ -159,6 +160,7 @@ export class FacturasService {
         proveedor: true,
       },
     });
+    return { facturas, totalCount };
   }
 
   async findOne(id: string) {

@@ -12,3 +12,7 @@ export interface Factura {
         nombre: string;
     };
 }
+export type FacturasResponse = {
+    facturas: Factura[];
+    totalCount: number;
+};

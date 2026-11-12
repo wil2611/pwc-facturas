@@ -1,6 +1,6 @@
-import type {Factura} from "../types/facturas";
+import type {FacturasResponse} from "../types/facturas";
 
-const getFacturas = async (page: number, pageSize: number, proveedor?: string, fechaDesde?: string, fechaHasta?: string): Promise<Factura[]> => {
+const getFacturas = async (page: number, pageSize: number, proveedor?: string, fechaDesde?: string, fechaHasta?: string): Promise<FacturasResponse> => {
     const params = new URLSearchParams();
     params.append('page', page.toString());
     params.append('pageSize', pageSize.toString());
