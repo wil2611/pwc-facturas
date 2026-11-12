@@ -1,4 +1,4 @@
-import type {Factura, FacturasResponse} from "../types/facturas";
+import type { Factura, FacturasResponse,ActualizarFactura } from "../types/facturas";
 
 const getFacturas = async (page: number, pageSize: number, proveedor?: string, fechaDesde?: string, fechaHasta?: string): Promise<FacturasResponse> => {
     const params = new URLSearchParams();
@@ -14,11 +14,11 @@ const getFacturas = async (page: number, pageSize: number, proveedor?: string, f
         params.append('fechaHasta', fechaHasta);
     }
     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/facturas?${params.toString()}`);
-    
+
     if (!response.ok) {
         throw new Error("No se pudo obtener las facturas");
     }
-    
+
     return response.json();
 };
 
@@ -30,4 +30,18 @@ const getFacturaById = async (id: string): Promise<Factura> => {
     return response.json();
 };
 
-export {getFacturas, getFacturaById};
+const updateFactura = async (id: string, facturaData: ActualizarFactura): Promise<Factura> => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/facturas/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(facturaData),
+    });
+    if (!response.ok) {
+        throw new Error("No se pudo actualizar la factura");
+    }
+    return response.json();
+};
+
+export { getFacturas, getFacturaById, updateFactura };

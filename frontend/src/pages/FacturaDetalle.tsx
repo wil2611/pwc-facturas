@@ -1,15 +1,48 @@
-import { getFacturaById } from '../services/facturas';
+import { getFacturaById, updateFactura } from '../services/facturas';
 import type { Factura } from '../types/facturas';
+import { getProveedores } from '../services/proveedores';
+import type { Proveedor } from '../types/proveedores';
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import '../styles/FacturaDetalle.css'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import facturaSchema from '../schemas/factura.schema'
+type FacturaFormData = z.infer<typeof facturaSchema>;
 
 function FacturaDetalle() {
     const [error, setError] = useState<string | null>(null)
+    const [success, setSuccess] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
     const [factura, setFactura] = useState<Factura | null>(null);
     const { id } = useParams<{ id: string }>();
+    const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<FacturaFormData>({
+        resolver: zodResolver(facturaSchema),
+    });
+    const [proveedores, setProveedores] = useState<Proveedor[]>([])
+
+    const onSubmit = async (data: FacturaFormData) => {
+        if (!id) {
+            setError('ID de factura no proporcionado');
+            return;
+        }
+        try {
+            setError(null);
+            setSuccess(null);
+            const facturaActualizada = await updateFactura(id, {
+                ...data,
+                fecha_vencimiento: data.fecha_vencimiento || null,
+                numero_contrato: data.numero_contrato || null
+            });
+            setFactura(facturaActualizada);
+            setSuccess('Factura actualizada correctamente');
+        } catch {
+            setError('Error al actualizar la factura');
+        }
+    };
+
     useEffect(() => {
         if (!id) return;
 
@@ -18,17 +51,29 @@ function FacturaDetalle() {
                 setLoading(true)
                 setError(null)
                 setFactura(null)
-                const factura = await getFacturaById(id);
-                setFactura(factura);
+                const factura = await getFacturaById(id)
+                const proveedores = await getProveedores()
+                setFactura(factura)
+                setProveedores(proveedores)
+                reset({
+                    proveedor_id: factura.proveedor_id,
+                    numero_factura: factura.numero_factura,
+                    fecha_emision: factura.fecha_emision.slice(0, 10),
+                    fecha_vencimiento: factura.fecha_vencimiento?.slice(0, 10) ?? '',
+                    valor_total: Number(factura.valor_total),
+                    moneda: factura.moneda,
+                    numero_contrato: factura.numero_contrato ?? ''
+                });
             } catch {
-                setError('Error al obtener la factura');
+                setError('No se pudo cargar la información de la factura');
             }
             finally {
                 setLoading(false);
             }
         };
         fetchFactura();
-    }, [id]);
+
+    }, [id, reset]);
     if (!id) {
         return <p>ID de factura no proporcionado</p>;
     }
@@ -40,15 +85,88 @@ function FacturaDetalle() {
             <h1>Detalle de la Factura</h1>
             {error && <p className="error">{error}</p>}
             {factura && (
-                <div className="detalle-datos">
-                    <p><strong>Número de factura:</strong> {factura.numero_factura}</p>
-                    <p><strong>Proveedor:</strong> {factura.proveedor.nombre}</p>
-                    <p><strong>Fecha de emisión:</strong> {factura.fecha_emision.slice(0, 10)}</p>
-                    <p><strong>Fecha de vencimiento:</strong> {factura.fecha_vencimiento?.slice(0, 10) ?? 'No especificada'}</p>
-                    <p><strong>Número de contrato:</strong> {factura.numero_contrato ?? 'No especificado'}</p>
-                    <p><strong>Valor total:</strong> {new Intl.NumberFormat('es-CO').format(Number(factura.valor_total))}</p>
-                    <p><strong>Moneda:</strong> {factura.moneda}</p>
-                </div>
+                <form onSubmit={handleSubmit(onSubmit)} className="detalle-datos">
+                    <div>
+                        <label htmlFor="numero_factura">Número de factura</label>
+                        <input
+                            id="numero_factura"
+                            type="text"
+                            {...register('numero_factura')}
+                        />
+                        {errors.numero_factura && (
+                            <p>{errors.numero_factura.message}</p>
+                        )}
+                    </div>
+                    <div>
+                        <label htmlFor="proveedor_id">Proveedor</label>
+                        <select id="proveedor_id" {...register('proveedor_id')}>
+                            {proveedores.map((proveedor) => (
+                                <option key={proveedor.id} value={proveedor.id}>
+                                    {proveedor.nombre}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.proveedor_id && <p>{errors.proveedor_id.message}</p>}
+                    </div>
+                    <div>
+                        <label htmlFor="fecha_emision">Fecha de emisión</label>
+                        <input
+                            id="fecha_emision"
+                            type="date"
+                            {...register('fecha_emision')}
+                        />
+                        {errors.fecha_emision && (
+                            <p>{errors.fecha_emision.message}</p>
+                        )}
+                    </div>
+                    <div>
+                        <label htmlFor="fecha_vencimiento">Fecha de vencimiento</label>
+                        <input
+                            id="fecha_vencimiento"
+                            type="date"
+                            {...register('fecha_vencimiento')}
+                        />
+                        {errors.fecha_vencimiento && (
+                            <p>{errors.fecha_vencimiento.message}</p>
+                        )}
+                    </div>
+                    <div>
+                        <label htmlFor="numero_contrato">Número de contrato</label>
+                        <input
+                            id="numero_contrato"
+                            type="text"
+                            {...register('numero_contrato')}
+                        />
+                        {errors.numero_contrato && (
+                            <p>{errors.numero_contrato.message}</p>
+                        )}
+                    </div>
+                    <div>
+                        <label htmlFor="valor_total">Valor total</label>
+                        <input
+                            id="valor_total"
+                            type="number"
+                            step="0.01"
+                            {...register('valor_total', { valueAsNumber: true })}
+                        />
+                        {errors.valor_total && (
+                            <p>{errors.valor_total.message}</p>
+                        )}
+                    </div>
+                    <div>
+                        <label htmlFor="moneda">Moneda</label>
+                        <input
+                            id="moneda"
+                            type="text"
+                            {...register('moneda')}
+                        />
+                        {errors.moneda && (
+                            <p>{errors.moneda.message}</p>
+                        )}
+                    </div>
+                    <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Guardando...' : 'Actualizar factura'}</button>
+                    {success && <p role="status">{success}</p>}
+                </form>
             )}
             <Link to="/facturas" className="back-link">Volver al listado</Link>
         </div>

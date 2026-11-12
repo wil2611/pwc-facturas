@@ -1,5 +1,5 @@
 .factura-detalle {
-  max-width: 900px;
+  max-width: 760px;
   margin: 0 auto;
   padding: 24px 20px;
 }
@@ -20,7 +20,7 @@
   background-color: white;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
-  padding: 12px 24px;
+  padding: 24px;
   font-weight: 400;
 }
 
@@ -28,15 +28,54 @@
   font-weight: 600;
 }
 
-.detalle-datos p {
-  font-size: 15px;
-  padding: 12px 0;
-  margin: 0;
-  border-bottom: 1px solid #e5e7eb;
+.detalle-datos > div {
+  margin-bottom: 16px;
 }
 
-.detalle-datos p:last-child {
-  border-bottom: none;
+.detalle-datos label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.detalle-datos input,
+.detalle-datos select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: white;
+  font: inherit;
+  font-size: 14px;
+}
+
+.detalle-datos input:focus-visible,
+.detalle-datos select:focus-visible {
+  outline: 2px solid #dc6900;
+  outline-offset: 2px;
+}
+
+.detalle-datos button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #dc6900;
+  color: white;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.detalle-datos button:hover:not(:disabled) {
+  background-color: #b85500;
+}
+
+.detalle-datos button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .back-link {
@@ -58,7 +97,7 @@
   }
 
   .detalle-datos {
-    padding: 8px 16px;
+    padding: 20px 16px;
   }
 
   .factura-detalle h1 {

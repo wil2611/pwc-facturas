@@ -16,3 +16,13 @@ export type FacturasResponse = {
     facturas: Factura[];
     totalCount: number;
 };
+
+export interface ActualizarFactura {
+    proveedor_id?: string;
+    numero_factura?: string;
+    fecha_emision?: string;
+    fecha_vencimiento?: string | null;
+    valor_total?: number;
+    moneda?: string;
+    numero_contrato?: string | null;
+}
