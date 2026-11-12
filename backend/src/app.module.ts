@@ -17,7 +17,5 @@ import { ProveedoresModule } from './proveedores/proveedores.module';
   ],
   controllers: [AppController],
   providers: [AppService],
-  
 })
-
 export class AppModule {}

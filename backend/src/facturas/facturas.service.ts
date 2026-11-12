@@ -1,4 +1,10 @@
-import { BadGatewayException, ConflictException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '../generated/prisma/client';
 import { UpdateFacturaDto } from './dto/update-factura.dto';
@@ -6,9 +12,21 @@ import { ConfigService } from '@nestjs/config';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { CreateFacturaDto } from './dto/create-factura.dto';
+
+type RespuestaGemini = Prisma.JsonObject & {
+  candidates?: {
+    content?: {
+      parts?: { text?: string }[];
+    };
+  }[];
+};
+
 @Injectable()
 export class FacturasService {
-  constructor(private prisma: PrismaService, private configService: ConfigService) { }
+  constructor(
+    private prisma: PrismaService,
+    private configService: ConfigService,
+  ) {}
 
   async create(archivo: Express.Multer.File) {
     const base64 = archivo.buffer.toString('base64');
@@ -18,7 +36,7 @@ export class FacturasService {
     const apiKey = this.configService.getOrThrow<string>('GEMINI_API_KEY');
     const apiUrl = this.configService.getOrThrow<string>('GEMINI_API_URL');
 
-    let response;
+    let response: Response;
     try {
       response = await fetch(`${apiUrl}`, {
         method: 'POST',
@@ -27,10 +45,11 @@ export class FacturasService {
           'x-goog-api-key': apiKey,
         },
         body: JSON.stringify({
-          contents: [{
-            "parts": [
-              {
-                "text": `Extrae la información de esta factura y devuelve
+          contents: [
+            {
+              parts: [
+                {
+                  text: `Extrae la información de esta factura y devuelve
                         unicamente un objeto JSON con los siguientes campos:
 
                         proveedor,
@@ -45,64 +64,65 @@ export class FacturasService {
                         El valor_total debe ser decimal.
                         La moneda debe ser tres letras, ejemplo COP.
                         Si un dato no aparece, devuelve null.
-                        No inventes información.`
-              }
-            ]
-          }, {
-            "parts": [
-              {
-                "inlineData": {
-                  "mimeType": mimeType,
-                  "data": base64,
-                }
-              }
-            ]
-          }
+                        No inventes información.`,
+                },
+              ],
+            },
+            {
+              parts: [
+                {
+                  inlineData: {
+                    mimeType: mimeType,
+                    data: base64,
+                  },
+                },
+              ],
+            },
           ],
           generationConfig: {
             responseMimeType: 'application/json',
-          }
+          },
         }),
       });
     } catch (error) {
       console.error(error);
-      throw new BadGatewayException("Error connecting to llm");
+      throw new BadGatewayException('Error connecting to llm');
     }
     if (!response.ok) {
       const error = await response.text();
       console.error(error);
-      throw new BadGatewayException("Error processing invoice with AI");
+      throw new BadGatewayException('Error processing invoice with AI');
     }
 
-    const resultado = await response.json();
+    const resultado = (await response.json()) as RespuestaGemini;
     const textoGenerado = resultado.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!textoGenerado) {
-      throw new BadGatewayException("No response from llm");
+      throw new BadGatewayException('No response from llm');
     }
-    let datosFactura;
+    let datosFactura: unknown;
     try {
       datosFactura = JSON.parse(textoGenerado);
-    } catch (error) {
-      throw new BadGatewayException("Invalid JSON from llm");
+    } catch {
+      throw new BadGatewayException('Invalid JSON from llm');
     }
     const factura = plainToInstance(CreateFacturaDto, datosFactura);
     const errors = await validate(factura);
 
     if (errors.length > 0) {
       console.error(errors);
-      throw new UnprocessableEntityException("Invalid invoice data");
+      throw new UnprocessableEntityException('Invalid invoice data');
     }
     try {
       const transacion = await this.prisma.$transaction(async (transaction) => {
         let proveedor = await transaction.proveedor.findFirst({
-          where: { nombre: factura.proveedor }
-        })
+          where: { nombre: factura.proveedor },
+        });
         if (!proveedor) {
           proveedor = await transaction.proveedor.create({
-            data: { nombre: factura.proveedor }
+            data: { nombre: factura.proveedor },
           });
         }
-        let facturaCreada = await transaction.factura.create({
+        const facturaCreada = await transaction.factura.create({
           data: {
             proveedor_id: proveedor.id,
             numero_factura: factura.numero_factura,
@@ -110,11 +130,11 @@ export class FacturasService {
             fecha_vencimiento: factura.fecha_vencimiento,
             valor_total: factura.valor_total,
             moneda: factura.moneda,
-            numero_contrato: factura.numero_contrato
+            numero_contrato: factura.numero_contrato,
           },
           include: {
             proveedor: true,
-          }
+          },
         });
         await transaction.documento.create({
           data: {
@@ -122,24 +142,35 @@ export class FacturasService {
             nombre_archivo: nombreArchivo,
             tipo_archivo: mimeType,
             size_bytes: tamaño,
-            respuesta_llm: resultado
-          }
+            respuesta_llm: resultado,
+          },
         });
         return facturaCreada;
       });
       return transacion;
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new ConflictException('Factura already exists');
       }
       throw error;
     }
   }
 
-  async findAll(page: number, pageSize: number, proveedor?: string, fechaDesde?: Date | null, fechaHasta?: Date | null) {
+  async findAll(
+    page: number,
+    pageSize: number,
+    proveedor?: string,
+    fechaDesde?: Date | null,
+    fechaHasta?: Date | null,
+  ) {
     const where: Prisma.FacturaWhereInput = {};
     if (proveedor) {
-      where.proveedor = { nombre: { contains: proveedor, mode: 'insensitive' } };
+      where.proveedor = {
+        nombre: { contains: proveedor, mode: 'insensitive' },
+      };
     }
     if (fechaDesde || fechaHasta) {
       where.fecha_emision = {};
@@ -154,10 +185,7 @@ export class FacturasService {
     const facturas = await this.prisma.factura.findMany({
       skip: (page - 1) * pageSize,
       take: pageSize,
-      orderBy: [
-        { fecha_emision: 'desc' },
-        { id: 'asc' },
-      ],
+      orderBy: [{ fecha_emision: 'desc' }, { id: 'asc' }],
       where: where,
       include: {
         proveedor: true,
