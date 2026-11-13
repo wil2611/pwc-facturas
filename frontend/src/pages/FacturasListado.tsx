@@ -80,7 +80,7 @@ function FacturasListado() {
       <p className="description">Consulta de facturas registradas</p>
       <div className="filters">
         <div className="provider-filter">
-          <label htmlFor="proveedor">Proveedor:</label>
+          <label htmlFor="proveedor">Proveedor</label>
           <input
             type="text"
             id="proveedor"
@@ -91,7 +91,7 @@ function FacturasListado() {
           />
         </div>
         <div className="date-filter">
-          <label htmlFor="fechaDesde">Fecha Desde:</label>
+          <label htmlFor="fechaDesde">Fecha Desde</label>
           <input
             type="date"
             id="fechaDesde"
@@ -102,7 +102,7 @@ function FacturasListado() {
           />
         </div>
         <div className="date-filter">
-          <label htmlFor="fechaHasta">Fecha Hasta:</label>
+          <label htmlFor="fechaHasta">Fecha Hasta</label>
           <input
             type="date"
             id="fechaHasta"
@@ -153,12 +153,12 @@ function FacturasListado() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>Número de factura</th>
+                  <th>Factura</th>
                   <th>Proveedor</th>
-                  <th>Fecha de emisión</th>
-                  <th>Fecha de vencimiento</th>
-                  <th>Número de contrato</th>
-                  <th className="amount">Valor total</th>
+                  <th>Emisión</th>
+                  <th>Vencimiento</th>
+                  <th>Contrato</th>
+                  <th className="amount">Total</th>
                   <th>Moneda</th>
                   <th>Acciones</th>
                 </tr>
