@@ -15,6 +15,7 @@ import {
   UploadedFile,
   UnsupportedMediaTypeException,
 } from '@nestjs/common';
+import { isDateString } from 'class-validator';
 import { FacturasService } from './facturas.service';
 import { UpdateFacturaDto } from './dto/update-factura.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -77,13 +78,19 @@ export class FacturasController {
 
     if (fechaDesde) {
       fechaDesdeDate = new Date(fechaDesde);
-      if (isNaN(fechaDesdeDate.getTime())) {
+      if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(fechaDesde) ||
+        !isDateString(fechaDesde, { strict: true })
+      ) {
         throw new BadRequestException('Invalid date. Date format YYYY-MM-DD.');
       }
     }
     if (fechaHasta) {
       fechaHastaDate = new Date(fechaHasta);
-      if (isNaN(fechaHastaDate.getTime())) {
+      if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(fechaHasta) ||
+        !isDateString(fechaHasta, { strict: true })
+      ) {
         throw new BadRequestException('Invalid date. Date format YYYY-MM-DD.');
       }
     }

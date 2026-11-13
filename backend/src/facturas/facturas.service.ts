@@ -94,9 +94,15 @@ export class FacturasService {
       throw new BadGatewayException('Error processing invoice with AI');
     }
 
-    const resultado = (await response.json()) as RespuestaGemini;
-    const textoGenerado = resultado.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!textoGenerado) {
+    let resultado: RespuestaGemini;
+
+    try {
+      resultado = (await response.json()) as RespuestaGemini;
+    } catch {
+      throw new BadGatewayException('Invalid JSON response from llm');
+    }
+    const textoGenerado = resultado?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (typeof textoGenerado !== 'string' || !textoGenerado.trim()) {
       throw new BadGatewayException('No response from llm');
     }
     let datosFactura: unknown;
@@ -104,6 +110,13 @@ export class FacturasService {
       datosFactura = JSON.parse(textoGenerado);
     } catch {
       throw new BadGatewayException('Invalid JSON from llm');
+    }
+    if (
+      typeof datosFactura !== 'object' ||
+      datosFactura === null ||
+      Array.isArray(datosFactura)
+    ) {
+      throw new UnprocessableEntityException('Invalid invoice data');
     }
     const factura = plainToInstance(CreateFacturaDto, datosFactura);
     const errors = await validate(factura);
@@ -114,20 +127,19 @@ export class FacturasService {
     }
     try {
       const transacion = await this.prisma.$transaction(async (transaction) => {
-        let proveedor = await transaction.proveedor.findFirst({
+        const proveedor = await transaction.proveedor.upsert({
           where: { nombre: factura.proveedor },
+          create: { nombre: factura.proveedor },
+          update: { nombre: factura.proveedor },
         });
-        if (!proveedor) {
-          proveedor = await transaction.proveedor.create({
-            data: { nombre: factura.proveedor },
-          });
-        }
         const facturaCreada = await transaction.factura.create({
           data: {
             proveedor_id: proveedor.id,
             numero_factura: factura.numero_factura,
-            fecha_emision: factura.fecha_emision,
-            fecha_vencimiento: factura.fecha_vencimiento,
+            fecha_emision: new Date(factura.fecha_emision),
+            fecha_vencimiento: factura.fecha_vencimiento
+              ? new Date(factura.fecha_vencimiento)
+              : null,
             valor_total: factura.valor_total,
             moneda: factura.moneda,
             numero_contrato: factura.numero_contrato,
@@ -232,7 +244,17 @@ export class FacturasService {
     try {
       const updatedFactura = await this.prisma.factura.update({
         where: { id },
-        data: updateData,
+        data: {
+          ...updateData,
+          fecha_emision:
+            updateData.fecha_emision !== undefined
+              ? new Date(updateData.fecha_emision)
+              : undefined,
+          fecha_vencimiento:
+            typeof updateData.fecha_vencimiento === 'string'
+              ? new Date(updateData.fecha_vencimiento)
+              : updateData.fecha_vencimiento,
+        },
         include: {
           proveedor: true,
         },

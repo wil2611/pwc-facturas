@@ -5,9 +5,9 @@ import {
   IsNumber,
   IsPositive,
   Length,
-  IsDate,
+  IsDateString,
+  Matches,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 export class CreateFacturaDto {
   @IsString()
   @IsNotEmpty()
@@ -18,14 +18,14 @@ export class CreateFacturaDto {
   numero_factura!: string;
 
   @IsNotEmpty()
-  @IsDate()
-  @Type(() => Date)
-  fecha_emision!: Date;
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  @IsDateString({ strict: true })
+  fecha_emision!: string;
 
   @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  fecha_vencimiento?: Date | null;
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  @IsDateString({ strict: true })
+  fecha_vencimiento?: string | null;
 
   @IsNotEmpty()
   @IsNumber({ maxDecimalPlaces: 2 })
