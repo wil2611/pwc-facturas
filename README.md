@@ -33,6 +33,11 @@ PORT=3000
 VITE_API_URL=http://localhost:3000
 ```
 
+
+## Documentación de la API
+
+Con el backend iniciado, abrir http://localhost:3000/api/docs.
+
 ## Como funciona
 
 En el frontend se tienen 3 pantallas : Lista de las facturas, detalle de una factura, cargar una factura.
