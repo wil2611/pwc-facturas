@@ -2,8 +2,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsNumber,
-  IsPositive,
   Length,
   IsDateString,
   Matches,
@@ -41,16 +39,16 @@ export class UpdateFacturaDto {
   fecha_vencimiento?: string | null;
 
   @ApiPropertyOptional({
-    type: Number,
-    example: 38500.5,
-    minimum: 0,
-    exclusiveMinimum: true,
-    multipleOf: 0.01,
+    type: String,
+    example: '38500.50',
+    description: 'Valor positivo con máximo 16 enteros y 2 decimales.',
   })
   @ValidateIf((_obj: unknown, valor: unknown) => valor !== undefined)
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @IsPositive()
-  valor_total?: number;
+  @Matches(/^(?=.*[1-9])\d{1,16}(?:\.\d{1,2})?$/, {
+    message:
+      'El valor debe ser positivo y tener máximo 16 enteros y 2 decimales.',
+  })
+  valor_total?: string;
 
   @ApiPropertyOptional({ example: 'COP', minLength: 3, maxLength: 3 })
   @ValidateIf((_obj: unknown, valor: unknown) => valor !== undefined)

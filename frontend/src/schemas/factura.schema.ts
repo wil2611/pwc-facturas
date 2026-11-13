@@ -10,7 +10,10 @@ const facturaSchema = z.object({
             message: "La fecha de vencimiento debe tener el formato YYYY-MM-DD",
         }
     ),
-    valor_total: z.number().positive("El valor total debe ser un número positivo"),
+    valor_total: z.string().trim().regex(
+        /^(?=.*[1-9])\d{1,16}(?:\.\d{1,2})?$/,
+        'Ingresa un valor positivo, con máximo 16 enteros y 2 decimales'
+    ),
     moneda: z.string().regex(/^[A-Za-z]{3}$/, "La moneda debe ser un código de tres letras"),
     numero_contrato: z.string().nullable().optional(),
 })

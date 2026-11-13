@@ -1,4 +1,4 @@
-import type { Factura, FacturasResponse, ActualizarFactura } from "../types/facturas";
+import type { Factura, FacturasResponse, ActualizarFactura,ResumenFactura } from "../types/facturas";
 import {verificarRespuesta,fetchSeguro} from "./apiErrores";
 const getFacturas = async (page: number, pageSize: number, proveedor?: string, fechaDesde?: string, fechaHasta?: string): Promise<FacturasResponse> => {
     const params = new URLSearchParams();
@@ -54,4 +54,10 @@ const deleteFactura = async (id: string): Promise<void> => {
     verificarRespuesta(response, "No se pudo eliminar la factura");
 }
 
-export { getFacturas, getFacturaById, updateFactura, uploadFactura, deleteFactura };
+const getResumenFacturas = async (): Promise<ResumenFactura[]> => {
+    const response = await fetchSeguro(`${import.meta.env.VITE_API_URL}/api/facturas/reportes/resumen`);
+    verificarRespuesta(response, "No se pudo obtener el resumen de facturas");
+    return response.json();
+}
+
+export { getFacturas, getFacturaById, updateFactura, uploadFactura, deleteFactura, getResumenFacturas };

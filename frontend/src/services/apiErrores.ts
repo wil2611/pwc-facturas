@@ -4,7 +4,7 @@
         throw new Error("No pudimos procesar la solicitud. Revisa los datos e inténtalo nuevamente.");
     }
     if (response.status === 404) {
-        throw new Error("No encontramos la factura que estás buscando.");
+        throw new Error(mensajeGeneral);
     }
     if (response.status === 409) {
         throw new Error("Ya existe una factura con ese número para el proveedor seleccionado.");

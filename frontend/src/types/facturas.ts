@@ -22,7 +22,15 @@ export interface ActualizarFactura {
     numero_factura?: string;
     fecha_emision?: string;
     fecha_vencimiento?: string | null;
-    valor_total?: number;
+    valor_total?: string;
     moneda?: string;
     numero_contrato?: string | null;
+}
+
+export interface ResumenFactura {
+    proveedor: string;
+    mes_factura: string;
+    total_facturas: number;
+    total_valor: string;
+    moneda: string;
 }

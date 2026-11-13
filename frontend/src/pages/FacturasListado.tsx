@@ -112,7 +112,7 @@ function FacturasListado() {
             }
           />
         </div>
-        <button type="button" className="filters-button" onClick={() => {
+        <button type="button" className="filters-button" disabled={loading} onClick={() => {
           if (fechaDesde && fechaHasta && fechaDesde > fechaHasta) {
             setErrorFiltros('La fecha desde no puede ser mayor que la fecha hasta')
             return
@@ -121,7 +121,7 @@ function FacturasListado() {
           setPage(1);
           setFiltrosAplicados({ proveedor, fechaDesde, fechaHasta });
         }}>Buscar</button>
-        <button type="button" className="clear-filters" onClick={() => {
+        <button type="button" className="clear-filters" disabled={loading} onClick={() => {
           setProveedor('');
           setFechaDesde('');
           setFechaHasta('');
@@ -131,9 +131,13 @@ function FacturasListado() {
         }}>Limpiar filtros</button>
         {errorFiltros && <p className="filter-error" role="alert">{errorFiltros}</p>}
       </div>
-      <div>
+      <div className="facturas-actions">
         <Link to="/carga" className="new-factura-button">
           Nueva factura
+        </Link>
+
+        <Link to="/resumen" className="resumen-button">
+          Ver resumen
         </Link>
       </div>
 

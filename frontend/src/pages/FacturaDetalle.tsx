@@ -64,7 +64,7 @@ function FacturaDetalle() {
                     numero_factura: factura.numero_factura,
                     fecha_emision: factura.fecha_emision.slice(0, 10),
                     fecha_vencimiento: factura.fecha_vencimiento?.slice(0, 10) ?? '',
-                    valor_total: Number(factura.valor_total),
+                    valor_total: factura.valor_total,
                     moneda: factura.moneda,
                     numero_contrato: factura.numero_contrato ?? ''
                 });
@@ -153,9 +153,9 @@ function FacturaDetalle() {
                         <label htmlFor="valor_total">Valor total</label>
                         <input
                             id="valor_total"
-                            type="number"
-                            step="0.01"
-                            {...register('valor_total', { valueAsNumber: true })}
+                            type="text"
+                            inputMode="decimal"
+                            {...register('valor_total')}
                         />
                         {errors.valor_total && (
                             <p>{errors.valor_total.message}</p>
