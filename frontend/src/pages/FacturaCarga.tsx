@@ -12,36 +12,35 @@ function FacturaCarga() {
 
     const handleArchivoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0] || null;
+        setPrevisualizacion(null)
         if (!file) {
             setArchivo(null);
             return;
         }
         setError(null)
-        setPrevisualizacion(null)
         const tiposPermitidos = ['application/pdf', 'image/jpeg', 'image/png'];
         if (!tiposPermitidos.includes(file.type)) {
             setError('Tipo de archivo no permitido. Solo se permiten PDF, JPG y PNG.');
+            setPrevisualizacion(null);
             setArchivo(null);
             return;
         }
         if (file.size > 10 * 1024 * 1024) {
             setError('El tamaño del archivo excede el límite de 10MB.');
             setArchivo(null);
-            return;
-        }
-        setArchivo(file);
-    };
-    useEffect(() => {
-        if (!archivo) {
             setPrevisualizacion(null);
             return;
         }
-        const url = URL.createObjectURL(archivo);
-        setPrevisualizacion(url);
+        setArchivo(file);
+        setPrevisualizacion(URL.createObjectURL(file));
+    };
+    useEffect(() => {
+        if (!previsualizacion) return;
+
         return () => {
-            URL.revokeObjectURL(url);
+            URL.revokeObjectURL(previsualizacion);
         };
-    }, [archivo]);
+    }, [previsualizacion]);
     const handleSubmit = async () => {
         if (!archivo) {
             setError('No se ha seleccionado ningún archivo.');
@@ -99,7 +98,7 @@ function FacturaCarga() {
             )}
             <Link to="/facturas" className="back-link">Volver al listado</Link>
         </div>
-        
+
     );
 }
 export default FacturaCarga;

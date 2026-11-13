@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import '../styles/FacturasListado.css'
 import type { Factura, FacturasResponse } from '../types/facturas'
 import { getFacturas, deleteFactura } from '../services/facturas'
@@ -50,7 +50,7 @@ function FacturasListado() {
     }
   }
 
-  const fetchFacturas = async () => {
+  const fetchFacturas = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -66,13 +66,13 @@ function FacturasListado() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, pageSize, filtrosAplicados])
 
 
 
   useEffect(() => {
     fetchFacturas()
-  }, [page, filtrosAplicados])
+  }, [fetchFacturas])
 
   return (
     <div className="App">
